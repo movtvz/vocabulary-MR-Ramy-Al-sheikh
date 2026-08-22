@@ -12,14 +12,6 @@
             padding: 15px;
             text-align: center;
         }
-        .controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
         .title {
             color: #17a2b8;
             font-size: 26px;
@@ -86,16 +78,9 @@
 </head>
 <body>
 
-    <!-- شريط سرعة النطق -->
-    <div class="controls">
-        <span id="rateValue">0.85</span>
-        <input type="range" id="rate" min="0.5" max="1.5" step="0.05" value="0.85">
-        <label>سرعة النطق:</label>
-    </div>
-
     <!-- العنوان -->
     <h1 class="title">Mr.Rami Al-Sheikh</h1>
-    <div class="subtitle">منصة نطق المفردات التعليمية</div>
+    <div class="subtitle">منصة نطق المفردات (بصوت المعلم)</div>
 
     <!-- قوائم الاختيار للطلبة -->
     <div class="selectors">
@@ -126,33 +111,14 @@
 
     <script>
         // =========================================================================
-        // قاعدة البيانات الخاصة بك: تقدر تزود براحتك (صف -> وحدة -> درس -> كلمات)
+        // قاعدة البيانات: يتم إضافة الكلمة مع مسار ملف الصوت الخاص بها (audio)
         // =========================================================================
         const schoolData = {
             "الصف الأول (Grade 1)": {
                 "الوحدة الأولى (Unit 1)": {
                     "الدرس الأول (Lesson 1)": [
-                        { ar: "مرحبا", en: "hi" },
-                        { ar: "صباح الخير", en: "good morning" },
-                        { ar: "طويل", en: "tall" }
-                    ],
-                    "الدرس الثاني (Lesson 2)": [
-                        { ar: "قطة", en: "cat" },
-                        { ar: "كلب", en: "dog" }
-                    ]
-                },
-                "الوحدة الثانية (Unit 2)": {
-                    "الدرس الأول (Lesson 1)": [
-                        { ar: "تفاحة", en: "apple" },
-                        { ar: "موز", en: "banana" }
-                    ]
-                }
-            },
-            "الصف الثاني (Grade 2)": {
-                "الوحدة الأولى (Unit 1)": {
-                    "الدرس الأول (Lesson 1)": [
-                        { ar: "مدرسة", en: "school" },
-                        { ar: "كتاب", en: "book" }
+                        { ar: "مرحبا", en: "hi", audio: "sounds/hi.mp3" },
+                        { ar: "طويل", en: "tall", audio: "sounds/tall.mp3" }
                     ]
                 }
             }
@@ -162,12 +128,6 @@
         const unitSelect = document.getElementById('unitSelect');
         const lessonSelect = document.getElementById('lessonSelect');
         const vocabList = document.getElementById('vocabList');
-        const rateInput = document.getElementById('rate');
-        const rateValue = document.getElementById('rateValue');
-
-        rateInput.addEventListener('input', () => {
-            rateValue.textContent = rateInput.value;
-        });
 
         // تعبئة الصفوف عند فتح الصفحة
         function initGrades() {
@@ -229,7 +189,7 @@
                         row.innerHTML = `
                             <td>${word.ar}</td>
                             <td><b>${word.en}</b></td>
-                            <td><button class="audio-btn" onclick="speak('${word.en}')">🔊</button></td>
+                            <td><button class="audio-btn" onclick="playAudio('${word.audio}')">🔊</button></td>
                         `;
                         vocabList.appendChild(row);
                     });
@@ -239,17 +199,12 @@
             }
         }
 
-        // خاصية نطق الصوت
-        function speak(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                utterance.rate = parseFloat(rateInput.value);
-                window.speechSynthesis.speak(utterance);
-            } else {
-                alert('المتصفح لا يدعم خاصية نطق الصوت.');
-            }
+        // تشغيل ملف الصوت الخاص بك
+        function playAudio(audioSrc) {
+            let sound = new Audio(audioSrc);
+            sound.play().catch(error => {
+                alert('عذراً، ملف الصوت غير موجود أو لم يتم رفع ملف الـ MP3 بشكل صحيح.');
+            });
         }
 
         // تشغيل وظيفة الصفوف عند التحميل
