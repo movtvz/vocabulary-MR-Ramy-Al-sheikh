@@ -30,7 +30,6 @@
             font-weight: bold;
             margin-bottom: 15px;
         }
-        /* قوائم الاختيار (الصف، الوحدة، الدرس) */
         .selectors {
             display: flex;
             justify-content: center;
@@ -90,14 +89,12 @@
     <div class="controls">
         <span id="rateValue">0.85</span>
         <input type="range" id="rate" min="0.5" max="1.5" step="0.05" value="0.85">
-        <label>سرعة النطق:</label>
+        <label>:سرعة النطق</label>
     </div>
 
-    <!-- العنوان -->
     <h1 class="title">Mr.Rami Al-Sheikh</h1>
     <div class="subtitle">منصة نطق المفردات التعليمية</div>
 
-    <!-- قوائم الاختيار للطلبة -->
     <div class="selectors">
         <select id="gradeSelect" onchange="updateUnits()">
             <option value="">اختر الصف الدراسي</option>
@@ -110,7 +107,6 @@
         </select>
     </div>
 
-    <!-- الجدول -->
     <table class="vocab-table">
         <thead>
             <tr>
@@ -125,34 +121,13 @@
     </table>
 
     <script>
-        // =========================================================================
-        // قاعدة البيانات الخاصة بك: تقدر تزود براحتك (صف -> وحدة -> درس -> كلمات)
-        // =========================================================================
+        // قاعدة البيانات: تقدر تزود براحتك (صف -> وحدة -> درس -> كلمات) من غير ملفات صوت خالص
         const schoolData = {
             "الصف الأول (Grade 1)": {
                 "الوحدة الأولى (Unit 1)": {
                     "الدرس الأول (Lesson 1)": [
                         { ar: "مرحبا", en: "hi" },
-                        { ar: "صباح الخير", en: "good morning" },
                         { ar: "طويل", en: "tall" }
-                    ],
-                    "الدرس الثاني (Lesson 2)": [
-                        { ar: "قطة", en: "cat" },
-                        { ar: "كلب", en: "dog" }
-                    ]
-                },
-                "الوحدة الثانية (Unit 2)": {
-                    "الدرس الأول (Lesson 1)": [
-                        { ar: "تفاحة", en: "apple" },
-                        { ar: "موز", en: "banana" }
-                    ]
-                }
-            },
-            "الصف الثاني (Grade 2)": {
-                "الوحدة الأولى (Unit 1)": {
-                    "الدرس الأول (Lesson 1)": [
-                        { ar: "مدرسة", en: "school" },
-                        { ar: "كتاب", en: "book" }
                     ]
                 }
             }
@@ -169,7 +144,6 @@
             rateValue.textContent = rateInput.value;
         });
 
-        // تعبئة الصفوف عند فتح الصفحة
         function initGrades() {
             for (let grade in schoolData) {
                 let opt = document.createElement('option');
@@ -179,7 +153,6 @@
             }
         }
 
-        // تحديث الوحدات حسب الصف المختار
         function updateUnits() {
             unitSelect.innerHTML = '<option value="">اختر الوحدة</option>';
             lessonSelect.innerHTML = '<option value="">اختر الدرس</option>';
@@ -196,7 +169,6 @@
             }
         }
 
-        // تحديث الدروس حسب الوحدة المختارة
         function updateLessons() {
             lessonSelect.innerHTML = '<option value="">اختر الدرس</option>';
             vocabList.innerHTML = '<tr><td colspan="3">الرجاء اختيار الدرس</td></tr>';
@@ -213,7 +185,6 @@
             }
         }
 
-        // عرض الكلمات الخاصة بالدرس المختار
         function loadWords() {
             let selectedGrade = gradeSelect.value;
             let selectedUnit = unitSelect.value;
@@ -239,7 +210,6 @@
             }
         }
 
-        // خاصية نطق الصوت
         function speak(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
@@ -252,7 +222,6 @@
             }
         }
 
-        // تشغيل وظيفة الصفوف عند التحميل
         initGrades();
     </script>
 </body>
