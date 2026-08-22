@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق مفردات</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .title {
+            color: #17a2b8;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .vocab-table {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #f3ebf9;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .vocab-table th, .vocab-table td {
+            padding: 12px 8px;
+            border: 1px solid #e2d5ed;
+            text-align: center;
+        }
+
+        .vocab-table th {
+            background-color: #eae0f5;
+            font-weight: bold;
+        }
+
+        .audio-btn {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .audio-btn:active {
+            transform: scale(0.95);
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شريط سرعة النطق -->
+    <div class="controls">
+        <span id="rateValue">0.85</span>
+        <input type="range" id="rate" min="0.5" max="1.5" step="0.05" value="0.85">
+        <label>سرعة النطق:</label>
+    </div>
+
+    <!-- العنوان -->
+    <h1 class="title">Mr.Rami Al-Sheikh</h1>
+    <div class="subtitle">Vocabulary on Reading and Listening<br>مفردات نصوص القراءة والاستماع</div>
+
+    <!-- الجدول -->
+    <table class="vocab-table">
+        <thead>
+            <tr>
+                <th>العربية</th>
+                <th>English</th>
+                <th>🔊</th>
+            </tr>
+        </thead>
+        <tbody id="vocabList"></tbody>
+    </table>
+
+    <script>
+        // ==========================================
+        // تعديل وإضافة الكلمات يكون في هذا المكان فقط
+        // ==========================================
+        const words = [
+            { ar: "مرحبا", en: "hi" },
+            { ar: "غبي", en: "idiot" },
+            { ar: "طويل", en: "tall" },
+        ];
+
+        // تشغيل برمجية الصفحة
+        const vocabList = document.getElementById('vocabList');
+        const rateInput = document.getElementById('rate');
+        const rateValue = document.getElementById('rateValue');
+
+        rateInput.addEventListener('input', () => {
+            rateValue.textContent = rateInput.value;
+        });
+
+        words.forEach(word => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${word.ar}</td>
+                <td><b>${word.en}</b></td>
+                <td><button class="audio-btn" onclick="speak('${word.en}')">🔊</button></td>
+            `;
+            vocabList.appendChild(row);
+        });
+
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = parseFloat(rateInput.value);
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('المتصفح لا يدعم خاصية نطق الصوت.');
+            }
+        }
+    </script>
+</body>
+</html>
