@@ -22,7 +22,6 @@
             font-weight: bold;
             margin-bottom: 15px;
         }
-        /* قوائم الاختيار (الصف، الوحدة، الدرس) */
         .selectors {
             display: flex;
             justify-content: center;
@@ -78,11 +77,9 @@
 </head>
 <body>
 
-    <!-- العنوان -->
     <h1 class="title">Mr.Rami Al-Sheikh</h1>
     <div class="subtitle">منصة نطق المفردات (بصوت المعلم)</div>
 
-    <!-- قوائم الاختيار للطلبة -->
     <div class="selectors">
         <select id="gradeSelect" onchange="updateUnits()">
             <option value="">اختر الصف الدراسي</option>
@@ -95,7 +92,6 @@
         </select>
     </div>
 
-    <!-- الجدول -->
     <table class="vocab-table">
         <thead>
             <tr>
@@ -110,9 +106,6 @@
     </table>
 
     <script>
-        // =========================================================================
-        // قاعدة البيانات: يتم إضافة الكلمة مع مسار ملف الصوت الخاص بها (audio)
-        // =========================================================================
         const schoolData = {
             "الصف الأول (Grade 1)": {
                 "الوحدة الأولى (Unit 1)": {
@@ -129,7 +122,6 @@
         const lessonSelect = document.getElementById('lessonSelect');
         const vocabList = document.getElementById('vocabList');
 
-        // تعبئة الصفوف عند فتح الصفحة
         function initGrades() {
             for (let grade in schoolData) {
                 let opt = document.createElement('option');
@@ -139,7 +131,6 @@
             }
         }
 
-        // تحديث الوحدات حسب الصف المختار
         function updateUnits() {
             unitSelect.innerHTML = '<option value="">اختر الوحدة</option>';
             lessonSelect.innerHTML = '<option value="">اختر الدرس</option>';
@@ -156,7 +147,6 @@
             }
         }
 
-        // تحديث الدروس حسب الوحدة المختارة
         function updateLessons() {
             lessonSelect.innerHTML = '<option value="">اختر الدرس</option>';
             vocabList.innerHTML = '<tr><td colspan="3">الرجاء اختيار الدرس</td></tr>';
@@ -173,7 +163,6 @@
             }
         }
 
-        // عرض الكلمات الخاصة بالدرس المختار
         function loadWords() {
             let selectedGrade = gradeSelect.value;
             let selectedUnit = unitSelect.value;
@@ -199,15 +188,13 @@
             }
         }
 
-        // تشغيل ملف الصوت الخاص بك
         function playAudio(audioSrc) {
             let sound = new Audio(audioSrc);
             sound.play().catch(error => {
-                alert('عذراً، ملف الصوت غير موجود أو لم يتم رفع ملف الـ MP3 بشكل صحيح.');
+                alert('تعذر تشغيل الصوت. تأكد أن المتصفح يسمح بالتشغيل أو أن الملف مرفوع بشكل صحيح.');
             });
         }
 
-        // تشغيل وظيفة الصفوف عند التحميل
         initGrades();
     </script>
 </body>
