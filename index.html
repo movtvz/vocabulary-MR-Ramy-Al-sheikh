@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق مفردات</title>
+    <title>منصة مستر رامي للمفردات</title>
     <style>
         body {
             font-family: system-ui, -apple-system, sans-serif;
@@ -12,28 +12,40 @@
             padding: 15px;
             text-align: center;
         }
-
         .controls {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-weight: bold;
         }
-
         .title {
             color: #17a2b8;
-            font-size: 28px;
+            font-size: 26px;
             margin-bottom: 5px;
         }
-
         .subtitle {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             margin-bottom: 15px;
         }
-
+        /* قوائم الاختيار (الصف، الوحدة، الدرس) */
+        .selectors {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .selectors select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+            background: white;
+            cursor: pointer;
+        }
         .vocab-table {
             width: 100%;
             max-width: 500px;
@@ -44,18 +56,15 @@
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-
         .vocab-table th, .vocab-table td {
             padding: 12px 8px;
             border: 1px solid #e2d5ed;
             text-align: center;
         }
-
         .vocab-table th {
             background-color: #eae0f5;
             font-weight: bold;
         }
-
         .audio-btn {
             background: white;
             border: 1px solid #ccc;
@@ -69,7 +78,6 @@
             justify-content: center;
             margin: 0 auto;
         }
-
         .audio-btn:active {
             transform: scale(0.95);
             background-color: #e0e0e0;
@@ -87,7 +95,20 @@
 
     <!-- العنوان -->
     <h1 class="title">Mr.Rami Al-Sheikh</h1>
-    <div class="subtitle">Vocabulary on Reading and Listening<br>مفردات نصوص القراءة والاستماع</div>
+    <div class="subtitle">منصة نطق المفردات التعليمية</div>
+
+    <!-- قوائم الاختيار للطلبة -->
+    <div class="selectors">
+        <select id="gradeSelect" onchange="updateUnits()">
+            <option value="">اختر الصف الدراسي</option>
+        </select>
+        <select id="unitSelect" onchange="updateLessons()">
+            <option value="">اختر الوحدة</option>
+        </select>
+        <select id="lessonSelect" onchange="loadWords()">
+            <option value="">اختر الدرس</option>
+        </select>
+    </div>
 
     <!-- الجدول -->
     <table class="vocab-table">
@@ -98,20 +119,48 @@
                 <th>🔊</th>
             </tr>
         </thead>
-        <tbody id="vocabList"></tbody>
+        <tbody id="vocabList">
+            <tr><td colspan="3">الرجاء اختيار الصف والوحدة والدرس لعرض الكلمات</td></tr>
+        </tbody>
     </table>
 
     <script>
-        // ==========================================
-        // تعديل وإضافة الكلمات يكون في هذا المكان فقط
-        // ==========================================
-        const words = [
-            { ar: "مرحبا", en: "hi" },
-            { ar: "غبي", en: "idiot" },
-            { ar: "طويل", en: "tall" },
-        ];
+        // =========================================================================
+        // قاعدة البيانات الخاصة بك: تقدر تزود براحتك (صف -> وحدة -> درس -> كلمات)
+        // =========================================================================
+        const schoolData = {
+            "الصف الأول (Grade 1)": {
+                "الوحدة الأولى (Unit 1)": {
+                    "الدرس الأول (Lesson 1)": [
+                        { ar: "مرحبا", en: "hi" },
+                        { ar: "صباح الخير", en: "good morning" },
+                        { ar: "طويل", en: "tall" }
+                    ],
+                    "الدرس الثاني (Lesson 2)": [
+                        { ar: "قطة", en: "cat" },
+                        { ar: "كلب", en: "dog" }
+                    ]
+                },
+                "الوحدة الثانية (Unit 2)": {
+                    "الدرس الأول (Lesson 1)": [
+                        { ar: "تفاحة", en: "apple" },
+                        { ar: "موز", en: "banana" }
+                    ]
+                }
+            },
+            "الصف الثاني (Grade 2)": {
+                "الوحدة الأولى (Unit 1)": {
+                    "الدرس الأول (Lesson 1)": [
+                        { ar: "مدرسة", en: "school" },
+                        { ar: "كتاب", en: "book" }
+                    ]
+                }
+            }
+        };
 
-        // تشغيل برمجية الصفحة
+        const gradeSelect = document.getElementById('gradeSelect');
+        const unitSelect = document.getElementById('unitSelect');
+        const lessonSelect = document.getElementById('lessonSelect');
         const vocabList = document.getElementById('vocabList');
         const rateInput = document.getElementById('rate');
         const rateValue = document.getElementById('rateValue');
@@ -120,16 +169,77 @@
             rateValue.textContent = rateInput.value;
         });
 
-        words.forEach(word => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${word.ar}</td>
-                <td><b>${word.en}</b></td>
-                <td><button class="audio-btn" onclick="speak('${word.en}')">🔊</button></td>
-            `;
-            vocabList.appendChild(row);
-        });
+        // تعبئة الصفوف عند فتح الصفحة
+        function initGrades() {
+            for (let grade in schoolData) {
+                let opt = document.createElement('option');
+                opt.value = grade;
+                opt.textContent = grade;
+                gradeSelect.appendChild(opt);
+            }
+        }
 
+        // تحديث الوحدات حسب الصف المختار
+        function updateUnits() {
+            unitSelect.innerHTML = '<option value="">اختر الوحدة</option>';
+            lessonSelect.innerHTML = '<option value="">اختر الدرس</option>';
+            vocabList.innerHTML = '<tr><td colspan="3">الرجاء اختيار الوحدة والدرس</td></tr>';
+            
+            let selectedGrade = gradeSelect.value;
+            if (selectedGrade && schoolData[selectedGrade]) {
+                for (let unit in schoolData[selectedGrade]) {
+                    let opt = document.createElement('option');
+                    opt.value = unit;
+                    opt.textContent = unit;
+                    unitSelect.appendChild(opt);
+                }
+            }
+        }
+
+        // تحديث الدروس حسب الوحدة المختارة
+        function updateLessons() {
+            lessonSelect.innerHTML = '<option value="">اختر الدرس</option>';
+            vocabList.innerHTML = '<tr><td colspan="3">الرجاء اختيار الدرس</td></tr>';
+            
+            let selectedGrade = gradeSelect.value;
+            let selectedUnit = unitSelect.value;
+            if (selectedGrade && selectedUnit && schoolData[selectedGrade][selectedUnit]) {
+                for (let lesson in schoolData[selectedGrade][selectedUnit]) {
+                    let opt = document.createElement('option');
+                    opt.value = lesson;
+                    opt.textContent = lesson;
+                    lessonSelect.appendChild(opt);
+                }
+            }
+        }
+
+        // عرض الكلمات الخاصة بالدرس المختار
+        function loadWords() {
+            let selectedGrade = gradeSelect.value;
+            let selectedUnit = unitSelect.value;
+            let selectedLesson = lessonSelect.value;
+            
+            vocabList.innerHTML = '';
+            
+            if (selectedGrade && selectedUnit && selectedLesson) {
+                let words = schoolData[selectedGrade][selectedUnit][selectedLesson];
+                if (words && words.length > 0) {
+                    words.forEach(word => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${word.ar}</td>
+                            <td><b>${word.en}</b></td>
+                            <td><button class="audio-btn" onclick="speak('${word.en}')">🔊</button></td>
+                        `;
+                        vocabList.appendChild(row);
+                    });
+                } else {
+                    vocabList.innerHTML = '<tr><td colspan="3">لا توجد كلمات مضافة في هذا الدرس حالياً</td></tr>';
+                }
+            }
+        }
+
+        // خاصية نطق الصوت
         function speak(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
@@ -141,6 +251,9 @@
                 alert('المتصفح لا يدعم خاصية نطق الصوت.');
             }
         }
+
+        // تشغيل وظيفة الصفوف عند التحميل
+        initGrades();
     </script>
 </body>
 </html>
